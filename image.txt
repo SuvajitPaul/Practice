@@ -1,0 +1,122 @@
+ imgSrc: any = "../../../../assets/images/resources/no_image_placeholder.jpg";
+  selectedImage: any = null;
+  editorContent: any = "";
+
+
+ filereset() {
+    this.postjobform.controls.imageUrl.reset();
+    this.imgSrc = '../../../../assets/images/resources/no_image_placeholder.jpg';
+    this.selectedImage = null;
+  }
+  sharethought() {
+    this.post.post = this.editorContent;
+    this.post['name'] = this.details.FirstName;
+    this.post['username'] = this.details.UserName;
+    console.log('post', this.post.post);
+    if (this.selectedImage) {
+      let filePath = `images/${this.selectedImage.name}_${new Date().getTime()}`;
+      const fileRef = this.storage.ref(filePath);
+      this.storage.upload(filePath, this.selectedImage).snapshotChanges().pipe(
+        finalize(() => {
+          fileRef.getDownloadURL().subscribe((url) => {
+            console.log('url', url);
+            this.post.link = url;
+            this.post['name'] = this.details.FirstName;
+            this.post['username'] = this.details.UserName;
+            this.postshare.Insert(this.post);
+            this.toastr.success('Post Share');
+          })
+        })
+      ).subscribe();
+      this.close();
+      this.filereset();
+    } else {
+      this.postshare.Insert(this.post);
+      this.toastr.success('Post Share');
+      this.filereset();
+      this.close();
+    }
+  }
+  showPreview(event: any) {
+    if (event.target.files && event.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => this.imgSrc = e.target.result;
+      reader.readAsDataURL(event.target.files[0]);
+      this.selectedImage = event.target.files[0];
+    }
+    else {
+      this.imgSrc = '../../../../assets/images/resources/no_image_placeholder.jpg';
+      this.selectedImage = null;
+    }
+  }
+  Sharethought(template: TemplateRef<any>) {
+    this.modalRef = this.modalService.show(template);
+  }
+
+
+
+<ng-template #sharethoughts>
+    <div [froalaEditor] [(froalaModel)]="editorContent">
+    </div>
+    <div>
+        <div class="card">
+            <div class="card-body">
+                <form [formGroup]="postjobform">
+                    <div class="text-center">
+                        <img [src]="imgSrc" width="500px" height="300px" (click)="fileUploader.click()">
+                    </div>
+                    <div class="form-group ">
+                        <label>Select file to upload</label>
+                        <input type="file" accept="image/*" class="form-control" #fileUploader
+                            formControlName="imageUrl" (change)="showPreview($event)">
+                    </div>
+                    <div><button (click)="filereset()">Reset</button></div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <a (click)="close()" class="btn btn-primary btn-block float-right">CANCEL</a>
+        </div>
+        <div class="form-group col-md-6">
+            <button type="submit" (click)="sharethought()" class="btn btn-success btn-block float-right">Submit</button>
+        </div>
+    </div>
+</ng-template>
+
+
+
+
+import { Injectable } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/firestore';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class PostthoughtsService {
+
+  constructor(public fireservice:AngularFirestore) { }
+  Insert(data:any){
+    const reviewTime = {
+      data:data,
+      timeStamp: new Date().getTime()
+    };
+    return this.fireservice.collection('postthoughts').add(reviewTime);
+  }
+  View(){
+    return this.fireservice.collection('postthoughts').snapshotChanges();
+  }
+  Update(id:any,data:any){
+    const reviewTime = {
+      data:data,
+      timeStamp: new Date().getTime()
+    };
+    this.fireservice.doc('postthoughts/'+id).update(reviewTime);
+ }
+  Delete(id:any)
+  {
+    this.fireservice.doc('postthoughts/'+id).delete();
+  }
+}

@@ -1,0 +1,105 @@
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
+import { Subject } from 'rxjs';
+@Injectable({
+  providedIn: 'root'
+})
+export class SearchService {
+  public searchData: BehaviorSubject<any> = new BehaviorSubject(null);
+  //private searchData: Subject<any> = new Subject;
+
+  constructor() { }
+  //SEARCH DATA SET AS OBSERVABLE
+  setSearchData(data: any) {
+    this.searchData.next(data);
+  }
+  getSearchData() {
+    return this.searchData;
+  }
+}
+
+
+ searchdata() {
+    this.searchlink = this.searchservice.getSearchData().subscribe((search: any) => {
+      console.log('searchdata', search);
+      this.search = search;
+      if (this.search) {
+        this.searchjobitem = this.jobpost.filter((item: any) => {
+          return item.data.title.toLowerCase().includes(this.search.toLowerCase())
+        });
+        console.log('searchitem', this.searchjobitem)
+        if (this.search) {
+          this.searchproject = this.projectpost.filter((item1: any) => {
+            //console.log('projectitem',item1.data.title1);
+            return item1.data.title1.toLowerCase().includes(this.search.toLowerCase())
+          });
+          console.log('searchproject', this.searchproject)
+        }
+        if (this.search) {
+          this.searchpost = this.sharepost.filter((item: any) => {
+            //console.log('projectitem',item1.data.title1);
+            return item.data.post.toLowerCase().includes(this.search.toLowerCase())
+          });
+          console.log('searchpost', this.searchpost)
+        }
+      }
+    });
+  }
+
+
+ <ng-template #searchjobBlock>
+                                    <div *ngFor="let searchjob of searchjobitem;let i = index;">
+                                        <div class="post-bar">
+                                            <div class="post_topbar">
+                                                <div class="usy-dt">
+                                                    <img src="../../../../assets/images/resources/user.png" alt="">
+                                                    <div class="usy-name">
+                                                        <h3>{{searchjob.data.name}}</h3>
+                                                        <span><img src="../../../../assets/clock.png"
+                                                                alt="">{{searchjob.timeStamp| date:'full'}}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="epi-sec">
+                                                <ul class="descp">
+                                                    <li><img src="../../../../assets/images/icon9.png"
+                                                            alt=""><span>{{searchjob.data.country}}</span>
+                                                    </li>
+                                                </ul>
+                                                <ul class="bk-links">
+                                                    <li>
+                                                        <a title="">
+                                                            <span class="material-icons-outlined"
+                                                                *ngIf="searchjob.data.username==profilerole">
+                                                                <img src="../../../../assets/1x/outline_edit_note_black_24dp.png"
+                                                                    (click)="Updaterecordjob(searchjob,updatejob)">Edit
+                                                            </span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a title="">
+                                                            <span class="material-icons-outlined"
+                                                                *ngIf="searchjob.data.username==profilerole">
+                                                                <img src="../../../../assets/1x/outline_delete_black_24dp.png"
+                                                                    (click)="Deleterecordjob(searchjob.id)">Delete
+                                                            </span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="job_descp">
+                                                <h3>{{searchjob.data.title | uppercase}}</h3>
+                                                <ul class="job-dt">
+                                                    <li><a title="">Full Time</a></li>
+                                                    <li><span>{{searchjob.data.price | currency:'INR'}} CTC</span></li>
+                                                </ul>
+                                                <h6 class="text-warning">Description</h6>
+                                                <p>{{searchjob.data.description | lowercase | describe:10}}</p>
+
+                                                <h6 class="text-danger ">Skill</h6>
+                                                <p>{{searchjob.data.skills}}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-template>
